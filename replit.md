@@ -127,6 +127,7 @@ The application follows a modern full-stack architecture with clear separation o
 
 ## Changelog
 - June 15, 2025. Initial setup
+- June 15, 2025. Implemented Cashfree payment gateway integration with secure API credentials for real money deposits
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
