@@ -112,10 +112,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
-      const currentDeposit = parseFloat(user.depositWallet);
+      const currentDeposit = parseFloat(user.depositWallet || '0');
       const newDeposit = (currentDeposit + parseFloat(amount)).toFixed(2);
       
-      await storage.updateUserWallets(userId, newDeposit, user.withdrawalWallet, user.referralWallet);
+      await storage.updateUserWallets(userId, newDeposit, user.withdrawalWallet || '0', user.referralWallet || '0');
       
       // Create transaction record
       await storage.createTransaction({
@@ -158,7 +158,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
-      const currentWithdrawal = parseFloat(user.withdrawalWallet);
+      const currentWithdrawal = parseFloat(user.withdrawalWallet || '0');
       const withdrawAmount = parseFloat(amount);
       
       if (currentWithdrawal < withdrawAmount) {
@@ -167,7 +167,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const newWithdrawal = (currentWithdrawal - withdrawAmount).toFixed(2);
       
-      await storage.updateUserWallets(userId, user.depositWallet, newWithdrawal, user.referralWallet);
+      await storage.updateUserWallets(userId, user.depositWallet || '0', newWithdrawal, user.referralWallet || '0');
       
       // Create transaction record
       await storage.createTransaction({

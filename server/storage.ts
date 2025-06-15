@@ -150,6 +150,7 @@ export class MemStorage implements IStorage {
     const referralCode = this.generateReferralCode();
     const user: User = {
       ...insertUser,
+      referredBy: insertUser.referredBy || null,
       id: this.currentUserId++,
       referralCode,
       depositWallet: '0.00',
@@ -181,15 +182,17 @@ export class MemStorage implements IStorage {
       return { tournamentsPlayed: 0, wins: 0, winRate: '0%', totalEarned: '0.00' };
     }
 
-    const winRate = user.tournamentsPlayed > 0 
-      ? Math.round((user.wins / user.tournamentsPlayed) * 100) + '%'
+    const tournamentsPlayed = user.tournamentsPlayed || 0;
+    const wins = user.wins || 0;
+    const winRate = tournamentsPlayed > 0 
+      ? Math.round((wins / tournamentsPlayed) * 100) + '%'
       : '0%';
 
     return {
-      tournamentsPlayed: user.tournamentsPlayed,
-      wins: user.wins,
+      tournamentsPlayed,
+      wins,
       winRate,
-      totalEarned: user.totalEarned,
+      totalEarned: user.totalEarned || '0.00',
     };
   }
 
@@ -237,6 +240,7 @@ export class MemStorage implements IStorage {
   async createTournament(insertTournament: InsertTournament): Promise<Tournament> {
     const tournament: Tournament = {
       ...insertTournament,
+      mapName: insertTournament.mapName || null,
       id: this.currentTournamentId++,
       currentPlayers: 0,
       status: 'upcoming',
@@ -286,6 +290,7 @@ export class MemStorage implements IStorage {
   async createTransaction(insertTransaction: InsertTransaction): Promise<Transaction> {
     const transaction: Transaction = {
       ...insertTransaction,
+      referenceId: insertTransaction.referenceId || null,
       id: this.currentTransactionId++,
       status: 'completed',
       createdAt: new Date(),
@@ -308,6 +313,7 @@ export class MemStorage implements IStorage {
   async createHelpRequest(insertHelpRequest: InsertHelpRequest): Promise<HelpRequest> {
     const helpRequest: HelpRequest = {
       ...insertHelpRequest,
+      tournamentId: insertHelpRequest.tournamentId || null,
       id: this.currentHelpRequestId++,
       status: 'open',
       adminResponse: null,

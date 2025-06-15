@@ -205,7 +205,7 @@ export default function Earn() {
             <Users className="w-5 h-5 mr-2 text-accent" />
             Recent Referrals
           </CardTitle>
-        </CardContent>
+        </CardHeader>
         <CardContent>
           <div className="space-y-3">
             {referralHistory.length > 0 ? (
