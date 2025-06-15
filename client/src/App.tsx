@@ -21,6 +21,7 @@ import Profile from "@/pages/Profile";
 import Tournaments from "@/pages/Tournaments";
 import Help from "@/pages/Help";
 import Admin from "@/pages/Admin";
+import PaymentSuccess from "@/pages/PaymentSuccess";
 import NotFound from "@/pages/not-found";
 
 function AppContent() {
@@ -112,6 +113,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/admin" component={() => <Admin />} />
+      <Route path="/payment-success" component={() => <PaymentSuccess />} />
       <Route component={AppContent} />
     </Switch>
   );

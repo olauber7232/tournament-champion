@@ -71,7 +71,7 @@ export class CashfreePaymentService {
         customerPhone,
       },
       orderMeta: {
-        returnUrl: `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment/success`,
+        returnUrl: `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment-success`,
         notifyUrl: `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/api/payment/webhook`,
       },
     };
