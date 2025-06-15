@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { cashfreeService } from "./cashfree";
 import { insertUserSchema, insertTournamentSchema, insertHelpRequestSchema, insertAdminMessageSchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -102,7 +103,151 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Wallet routes
+  // Payment routes
+  app.post("/api/payment/create-order", async (req, res) => {
+    try {
+      const { userId, amount } = req.body;
+      
+      if (!userId || !amount || parseFloat(amount) < 20) {
+        return res.status(400).json({ message: "Invalid amount. Minimum deposit is ₹20" });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Create Cashfree order
+      const order = await cashfreeService.createOrder(
+        userId,
+        parseFloat(amount),
+        user.username
+      );
+
+      res.json({
+        orderId: order.order_id,
+        paymentSessionId: order.payment_session_id,
+        amount: order.order_amount,
+        currency: order.order_currency,
+      });
+    } catch (error: any) {
+      console.error('Payment order creation failed:', error);
+      res.status(500).json({ message: "Failed to create payment order", error: error.message });
+    }
+  });
+
+  app.post("/api/payment/verify", async (req, res) => {
+    try {
+      const { orderId } = req.body;
+      
+      if (!orderId) {
+        return res.status(400).json({ message: "Order ID is required" });
+      }
+
+      // Verify payment with Cashfree
+      const paymentStatus = await cashfreeService.verifyPayment(orderId);
+      
+      if (paymentStatus.order_status === 'PAID') {
+        // Extract user ID from order ID (format: KIRDA_userId_timestamp)
+        const userId = parseInt(orderId.split('_')[1]);
+        const amount = paymentStatus.order_amount.toString();
+        
+        const user = await storage.getUser(userId);
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+
+        // Update user wallet
+        const currentDeposit = parseFloat(user.depositWallet || '0');
+        const newDeposit = (currentDeposit + parseFloat(amount)).toFixed(2);
+        
+        await storage.updateUserWallets(userId, newDeposit, user.withdrawalWallet || '0', user.referralWallet || '0');
+        
+        // Create transaction record
+        await storage.createTransaction({
+          userId,
+          type: 'deposit',
+          amount: amount,
+          description: `Deposit of ₹${amount} via Cashfree`,
+          referenceId: orderId,
+        });
+
+        // Handle referral commission if user was referred
+        if (user.referredBy) {
+          const referrer = await storage.getUserByReferralCode(user.referredBy);
+          if (referrer) {
+            const commission = (parseFloat(amount) * 0.07).toFixed(2); // 7% commission
+            await storage.updateReferralStats(referrer.id, commission);
+            
+            await storage.createTransaction({
+              userId: referrer.id,
+              type: 'referral_bonus',
+              amount: commission,
+              description: `Referral commission from ${user.username}`,
+              referenceId: `REF_${orderId}`,
+            });
+          }
+        }
+
+        res.json({ 
+          success: true, 
+          message: "Payment verified and deposit successful", 
+          newBalance: newDeposit 
+        });
+      } else {
+        res.status(400).json({ 
+          success: false, 
+          message: "Payment not completed", 
+          status: paymentStatus.order_status 
+        });
+      }
+    } catch (error: any) {
+      console.error('Payment verification failed:', error);
+      res.status(500).json({ message: "Payment verification failed", error: error.message });
+    }
+  });
+
+  app.post("/api/payment/webhook", async (req, res) => {
+    try {
+      // Handle Cashfree webhook for payment status updates
+      const { order_id, order_status, order_amount } = req.body;
+      
+      if (order_status === 'PAID') {
+        // Extract user ID from order ID
+        const userId = parseInt(order_id.split('_')[1]);
+        const amount = order_amount.toString();
+        
+        const user = await storage.getUser(userId);
+        if (user) {
+          // Update wallet if not already updated
+          const existingTransaction = await storage.getUserTransactions(userId);
+          const alreadyProcessed = existingTransaction.some(t => t.referenceId === order_id);
+          
+          if (!alreadyProcessed) {
+            const currentDeposit = parseFloat(user.depositWallet || '0');
+            const newDeposit = (currentDeposit + parseFloat(amount)).toFixed(2);
+            
+            await storage.updateUserWallets(userId, newDeposit, user.withdrawalWallet || '0', user.referralWallet || '0');
+            
+            await storage.createTransaction({
+              userId,
+              type: 'deposit',
+              amount: amount,
+              description: `Deposit of ₹${amount} via Cashfree Webhook`,
+              referenceId: order_id,
+            });
+          }
+        }
+      }
+      
+      res.status(200).json({ success: true });
+    } catch (error) {
+      console.error('Webhook processing failed:', error);
+      res.status(500).json({ success: false });
+    }
+  });
+
+  // Legacy wallet deposit route (keeping for backward compatibility)
   app.post("/api/wallet/deposit", async (req, res) => {
     try {
       const { userId, amount } = req.body;

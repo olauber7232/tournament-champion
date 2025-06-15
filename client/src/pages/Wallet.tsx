@@ -27,22 +27,47 @@ export default function Wallet() {
     enabled: !!user?.id,
   });
 
-  const depositMutation = useMutation({
+  const createOrderMutation = useMutation({
     mutationFn: async (amount: string) => {
-      const response = await apiRequest('POST', '/api/wallet/deposit', {
+      const response = await apiRequest('POST', '/api/payment/create-order', {
         userId: user?.id,
         amount,
       });
       return response.json();
     },
-    onSuccess: () => {
-      toast({ title: "Deposit successful!", description: "Funds added to your deposit wallet" });
-      setDepositAmount('');
-      setShowDepositModal(false);
-      queryClient.invalidateQueries();
+    onSuccess: (data) => {
+      // Redirect to Cashfree payment page
+      const cashfreeCheckoutUrl = `https://sandbox.cashfree.com/pg/view/order/${data.orderId}?token=${data.paymentSessionId}`;
+      window.open(cashfreeCheckoutUrl, '_blank');
+      
+      // Start polling for payment verification
+      verifyPaymentMutation.mutate(data.orderId);
     },
     onError: (error: any) => {
-      toast({ title: "Deposit failed", description: error.message, variant: "destructive" });
+      toast({ title: "Payment initiation failed", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const verifyPaymentMutation = useMutation({
+    mutationFn: async (orderId: string) => {
+      // Poll for payment status with delay
+      await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds before first check
+      
+      const response = await apiRequest('POST', '/api/payment/verify', { orderId });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        toast({ title: "Payment successful!", description: "Funds added to your deposit wallet" });
+        setDepositAmount('');
+        setShowDepositModal(false);
+        queryClient.invalidateQueries();
+      } else {
+        toast({ title: "Payment pending", description: "Please complete the payment process", variant: "destructive" });
+      }
+    },
+    onError: (error: any) => {
+      toast({ title: "Payment verification failed", description: "Please contact support if payment was deducted", variant: "destructive" });
     },
   });
 
@@ -71,7 +96,7 @@ export default function Wallet() {
       toast({ title: "Invalid amount", description: "Minimum deposit is ₹20", variant: "destructive" });
       return;
     }
-    depositMutation.mutate(depositAmount);
+    createOrderMutation.mutate(depositAmount);
   };
 
   const handleWithdraw = (e: React.FormEvent) => {
@@ -188,10 +213,11 @@ export default function Wallet() {
                   <Button 
                     type="submit" 
                     className="w-full gradient-accent" 
-                    disabled={depositMutation.isPending}
+                    disabled={createOrderMutation.isPending || verifyPaymentMutation.isPending}
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    {depositMutation.isPending ? "Processing..." : "Pay with UPI"}
+                    {createOrderMutation.isPending ? "Initiating Payment..." : 
+                     verifyPaymentMutation.isPending ? "Verifying Payment..." : "Pay with Cashfree"}
                   </Button>
                 </form>
               </DialogContent>
