@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation } from "wouter";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,13 +7,14 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
 export default function PaymentSuccess() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isVerifying, setIsVerifying] = useState(true);
   const [paymentStatus, setPaymentStatus] = useState<'success' | 'failed' | 'pending'>('pending');
 
-  const orderId = searchParams.get("order_id") || sessionStorage.getItem('pendingOrderId');
+  // Get order ID from URL params or session storage
+  const urlParams = new URLSearchParams(window.location.search);
+  const orderId = urlParams.get("order_id") || sessionStorage.getItem('pendingOrderId');
 
   useEffect(() => {
     const verifyPayment = async () => {
@@ -88,11 +89,11 @@ export default function PaymentSuccess() {
               : "There was an issue processing your payment. If money was deducted, please contact support."}
           </p>
           <div className="space-y-2">
-            <Button onClick={() => navigate("/wallet")} className="w-full">
+            <Button onClick={() => setLocation("/wallet")} className="w-full">
               Go to Wallet
             </Button>
             {paymentStatus === "failed" && (
-              <Button variant="outline" onClick={() => navigate("/help")} className="w-full">
+              <Button variant="outline" onClick={() => setLocation("/help")} className="w-full">
                 Contact Support
               </Button>
             )}
