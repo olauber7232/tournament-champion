@@ -148,6 +148,7 @@ export class MemStorage implements IStorage {
         ...tournament,
         id: this.currentTournamentId++,
         createdAt: new Date(),
+        imageUrl: tournament.imageUrl || null,
       };
       this.tournaments.set(newTournament.id, newTournament);
     });
