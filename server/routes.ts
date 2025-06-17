@@ -116,9 +116,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userIdNum = typeof userId === 'string' ? parseInt(userId) : userId;
       console.log(`Creating order for user ID: ${userIdNum}`);
       
+      // Check if userIdNum is valid
+      if (isNaN(userIdNum)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
       const user = await storage.getUser(userIdNum);
       if (!user) {
-        console.error(`User not found for ID: ${userIdNum}. Available users in DB should be checked.`);
+        console.error(`User not found for ID: ${userIdNum}. Checking all users in database...`);
+        // Debug: Log all users to see what's available
+        const allUsers = await storage.getAllUsers();
+        console.log(`Available users:`, allUsers.map(u => ({ id: u.id, username: u.username })));
         return res.status(404).json({ message: "User not found" });
       }
 

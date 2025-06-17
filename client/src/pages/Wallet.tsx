@@ -32,8 +32,11 @@ export default function Wallet() {
 
   const createOrderMutation = useMutation({
     mutationFn: async (amount: string) => {
+      if (!user?.id) {
+        throw new Error('User not logged in');
+      }
       const response = await apiRequest('POST', '/api/payment/create-order', {
-        userId: user?.id,
+        userId: parseInt(user.id.toString()),
         amount,
       });
       if (!response.ok) {
