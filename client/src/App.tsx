@@ -12,17 +12,13 @@ import TopBar from "@/components/TopBar";
 import BottomNavigation from "@/components/BottomNavigation";
 
 // Pages
-import Auth from "@/pages/Auth";
-import Dashboard from "@/pages/Dashboard";
-import Wallet from "@/pages/Wallet";
-import Winners from "@/pages/Winners";
-import Earn from "@/pages/Earn";
-import Profile from "@/pages/Profile";
-import Tournaments from "@/pages/Tournaments";
 import Help from "@/pages/Help";
 import Admin from "@/pages/Admin";
-import PaymentSuccess from "@/pages/PaymentSuccess";
 import NotFound from "@/pages/not-found";
+import PaymentSuccess from "@/pages/PaymentSuccess";
+import About from "@/pages/About";
+import Terms from "@/pages/Terms";
+import RefundPolicy from "@/pages/RefundPolicy";
 
 function AppContent() {
   const { isLoggedIn, isLoading } = useAuth();
@@ -81,7 +77,7 @@ function AppContent() {
         onWalletClick={() => handleNavigate('wallet')} 
         onNotificationClick={() => {}} 
       />
-      
+
       <main className="p-4">
         {currentPage === 'home' && (
           <Dashboard 
@@ -114,6 +110,9 @@ function Router() {
     <Switch>
       <Route path="/admin" component={() => <Admin />} />
       <Route path="/payment-success" component={() => <PaymentSuccess />} />
+      <Route path="/about" component={() => <About />} />
+      <Route path="/terms" component={() => <Terms />} />
+      <Route path="/refund-policy" component={() => <RefundPolicy />} />
       <Route component={AppContent} />
     </Switch>
   );

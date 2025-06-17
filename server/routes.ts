@@ -114,10 +114,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Convert string userId to number if needed
       const userIdNum = typeof userId === 'string' ? parseInt(userId) : userId;
+      console.log(`Creating order for user ID: ${userIdNum}`);
       
       const user = await storage.getUser(userIdNum);
       if (!user) {
-        console.error(`User not found for ID: ${userIdNum}`);
+        console.error(`User not found for ID: ${userIdNum}. Available users in DB should be checked.`);
         return res.status(404).json({ message: "User not found" });
       }
 

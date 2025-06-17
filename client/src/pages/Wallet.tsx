@@ -36,20 +36,55 @@ export default function Wallet() {
         userId: user?.id,
         amount,
       });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create order');
+      }
       return response.json();
     },
-    onSuccess: (data) => {
-      // Store order ID for verification
-      sessionStorage.setItem('pendingOrderId', data.orderId);
-      
-      // Redirect to Cashfree payment page
-      const cashfreeCheckoutUrl = `https://sandbox.cashfree.com/pg/view/order/${data.orderId}?token=${data.paymentSessionId}`;
-      window.location.href = cashfreeCheckoutUrl;
-      
-      toast({ 
-        title: "Redirecting to payment", 
-        description: "You will be redirected to complete the payment" 
-      });
+    onSuccess: async (data) => {
+      try {
+        // Store order ID for verification
+        sessionStorage.setItem('pendingOrderId', data.orderId);
+        
+        // Initialize Cashfree SDK
+        const cashfree = Cashfree({
+          mode: "sandbox", // Change to "production" for live environment
+        });
+        
+        // Create checkout options
+        const checkoutOptions = {
+          paymentSessionId: data.paymentSessionId,
+          redirectTarget: "_self", // Stay on same tab
+        };
+        
+        // Open Cashfree checkout
+        cashfree.checkout(checkoutOptions).then((result: any) => {
+          if (result.error) {
+            console.error("Payment failed:", result.error);
+            toast({ 
+              title: "Payment failed", 
+              description: result.error.message || "Payment could not be processed", 
+              variant: "destructive" 
+            });
+          }
+          if (result.redirect) {
+            console.log("Payment completed, redirecting...");
+          }
+        });
+        
+        toast({ 
+          title: "Payment initiated", 
+          description: "Complete your payment in the checkout window" 
+        });
+      } catch (error: any) {
+        console.error("Cashfree checkout error:", error);
+        toast({ 
+          title: "Checkout error", 
+          description: "Failed to open payment window", 
+          variant: "destructive" 
+        });
+      }
     },
     onError: (error: any) => {
       toast({ title: "Payment initiation failed", description: error.message, variant: "destructive" });

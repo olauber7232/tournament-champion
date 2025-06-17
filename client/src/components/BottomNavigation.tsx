@@ -1,4 +1,4 @@
-import { Home, Wallet, Trophy, DollarSign, User } from "lucide-react";
+import { Home, Wallet, Trophy, DollarSign, User, HelpCircle, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BottomNavigationProps {
@@ -21,7 +21,7 @@ export default function BottomNavigation({ currentPage, onNavigate }: BottomNavi
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentPage === item.id;
-          
+
           return (
             <button
               key={item.id}
