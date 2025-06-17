@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { User, History, HelpCircle, Settings, Shield, LogOut } from "lucide-react";
+import { User, History, HelpCircle, Settings, Shield, LogOut, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import type { UserStats } from "@shared/schema";
 
@@ -111,6 +111,42 @@ export default function Profile({ onNavigate }: ProfileProps) {
         <Button
           variant="outline"
           className="w-full justify-between bg-gray-850 border-border hover:bg-gray-800"
+          onClick={() => onNavigate('about')}
+        >
+          <div className="flex items-center">
+            <FileText className="w-5 h-5 mr-3 text-secondary" />
+            <span>About Us</span>
+          </div>
+          <span>›</span>
+        </Button>
+
+        <Button
+          variant="outline"
+          className="w-full justify-between bg-gray-850 border-border hover:bg-gray-800"
+          onClick={() => onNavigate('terms')}
+        >
+          <div className="flex items-center">
+            <FileText className="w-5 h-5 mr-3 text-secondary" />
+            <span>Terms & Conditions</span>
+          </div>
+          <span>›</span>
+        </Button>
+
+        <Button
+          variant="outline"
+          className="w-full justify-between bg-gray-850 border-border hover:bg-gray-800"
+          onClick={() => onNavigate('refund-policy')}
+        >
+          <div className="flex items-center">
+            <FileText className="w-5 h-5 mr-3 text-secondary" />
+            <span>Refund Policy</span>
+          </div>
+          <span>›</span>
+        </Button>
+
+        <Button
+          variant="outline"
+          className="w-full justify-between bg-gray-850 border-border hover:bg-gray-800"
         >
           <div className="flex items-center">
             <Shield className="w-5 h-5 mr-3 text-secondary" />
@@ -127,39 +163,6 @@ export default function Profile({ onNavigate }: ProfileProps) {
           Logout
         </Button>
       </div>
-
-      {/* Legal Pages */}
-      <Card className="bg-gray-850 border-border">
-        <CardHeader>
-          <CardTitle className="text-lg">Legal Information</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <Button 
-            variant="ghost" 
-            className="w-full justify-start" 
-            onClick={() => window.open('/about', '_blank')}
-          >
-            <FileText className="w-4 h-4 mr-2" />
-            About Us
-          </Button>
-          <Button 
-            variant="ghost" 
-            className="w-full justify-start" 
-            onClick={() => window.open('/terms', '_blank')}
-          >
-            <FileText className="w-4 h-4 mr-2" />
-            Terms & Conditions
-          </Button>
-          <Button 
-            variant="ghost" 
-            className="w-full justify-start" 
-            onClick={() => window.open('/refund-policy', '_blank')}
-          >
-            <FileText className="w-4 h-4 mr-2" />
-            Refund Policy
-          </Button>
-        </CardContent>
-      </Card>
 
       {/* Additional Info */}
       <Card className="bg-gray-850 border-border">
