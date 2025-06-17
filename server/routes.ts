@@ -296,7 +296,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/wallet/withdraw", async (req, res) => {
     try {
-      const { userId, amount } = req.body;
+      const { userId, amount, bankAccount, ifsc, accountHolderName } = req.body;
       const user = await storage.getUser(userId);
       
       if (!user) {
@@ -310,20 +310,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Insufficient balance" });
       }
 
-      const newWithdrawal = (currentWithdrawal - withdrawAmount).toFixed(2);
-      
-      await storage.updateUserWallets(userId, user.depositWallet || '0', newWithdrawal, user.referralWallet || '0');
-      
-      // Create transaction record
-      await storage.createTransaction({
-        userId,
-        type: 'withdrawal',
-        amount: `-${amount}`,
-        description: `Withdrawal of ₹${amount}`,
-        referenceId: `WTH_${Date.now()}`,
-      });
+      if (withdrawAmount < 100) {
+        return res.status(400).json({ message: "Minimum withdrawal amount is ₹100" });
+      }
 
-      res.json({ message: "Withdrawal successful", newBalance: newWithdrawal });
+      try {
+        // Add beneficiary to Cashfree
+        const beneficiary = await cashfreeService.addBeneficiary(
+          userId,
+          accountHolderName || user.username,
+          `user${userId}@kirda.com`,
+          '9999999999',
+          bankAccount,
+          ifsc,
+          'Mumbai, Maharashtra'
+        );
+
+        // Request withdrawal
+        const withdrawalResponse = await cashfreeService.requestWithdraw(
+          userId,
+          withdrawAmount,
+          beneficiary.data?.beneId || `BENE_${userId}_${Date.now()}`,
+          `Withdrawal of ₹${amount} from gaming platform`
+        );
+
+        // Deduct amount from user wallet
+        const newWithdrawal = (currentWithdrawal - withdrawAmount).toFixed(2);
+        await storage.updateUserWallets(userId, user.depositWallet || '0', newWithdrawal, user.referralWallet || '0');
+        
+        // Create transaction record
+        await storage.createTransaction({
+          userId,
+          type: 'withdrawal',
+          amount: `-${amount}`,
+          description: `Withdrawal of ₹${amount} via Cashfree`,
+          referenceId: withdrawalResponse.data?.transferId || `WTH_${Date.now()}`,
+        });
+
+        res.json({ 
+          message: "Withdrawal request submitted successfully", 
+          newBalance: newWithdrawal,
+          transferId: withdrawalResponse.data?.transferId,
+          status: withdrawalResponse.data?.status || 'PENDING'
+        });
+      } catch (cashfreeError: any) {
+        console.error('Cashfree withdrawal failed:', cashfreeError);
+        res.status(500).json({ 
+          message: "Withdrawal request failed", 
+          error: cashfreeError.message 
+        });
+      }
     } catch (error) {
       res.status(500).json({ message: "Withdrawal failed" });
     }
@@ -410,6 +446,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Successfully joined tournament", entry });
     } catch (error) {
       res.status(500).json({ message: "Failed to join tournament" });
+    }
+  });
+
+  // Withdrawal status route
+  app.get("/api/withdrawal/status/:transferId", async (req, res) => {
+    try {
+      const { transferId } = req.params;
+      const status = await cashfreeService.getWithdrawStatus(transferId);
+      res.json({ status });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to get withdrawal status", error: error.message });
     }
   });
 

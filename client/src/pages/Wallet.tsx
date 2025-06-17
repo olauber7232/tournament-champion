@@ -19,6 +19,9 @@ export default function Wallet() {
   
   const [depositAmount, setDepositAmount] = useState('');
   const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [bankAccount, setBankAccount] = useState('');
+  const [ifsc, setIfsc] = useState('');
+  const [accountHolderName, setAccountHolderName] = useState('');
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
@@ -72,16 +75,22 @@ export default function Wallet() {
   });
 
   const withdrawMutation = useMutation({
-    mutationFn: async (amount: string) => {
+    mutationFn: async (data: { amount: string; bankAccount: string; ifsc: string; accountHolderName: string }) => {
       const response = await apiRequest('POST', '/api/wallet/withdraw', {
         userId: user?.id,
-        amount,
+        ...data,
       });
       return response.json();
     },
-    onSuccess: () => {
-      toast({ title: "Withdrawal successful!", description: "Funds will be processed within 2-4 hours" });
+    onSuccess: (data) => {
+      toast({ 
+        title: "Withdrawal request submitted!", 
+        description: `Transfer ID: ${data.transferId}. Funds will be processed within 2-4 hours` 
+      });
       setWithdrawAmount('');
+      setBankAccount('');
+      setIfsc('');
+      setAccountHolderName('');
       setShowWithdrawModal(false);
       queryClient.invalidateQueries();
     },
@@ -109,7 +118,16 @@ export default function Wallet() {
       toast({ title: "Insufficient balance", description: "You don't have enough balance", variant: "destructive" });
       return;
     }
-    withdrawMutation.mutate(withdrawAmount);
+    if (!bankAccount || !ifsc || !accountHolderName) {
+      toast({ title: "Missing bank details", description: "Please fill all bank details", variant: "destructive" });
+      return;
+    }
+    withdrawMutation.mutate({ 
+      amount: withdrawAmount, 
+      bankAccount, 
+      ifsc, 
+      accountHolderName 
+    });
   };
 
   const quickSelectAmount = (amount: string) => {
@@ -268,6 +286,45 @@ export default function Wallet() {
                       required
                     />
                   </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <Label htmlFor="accountHolderName">Account Holder Name</Label>
+                      <Input
+                        id="accountHolderName"
+                        type="text"
+                        value={accountHolderName}
+                        onChange={(e) => setAccountHolderName(e.target.value)}
+                        placeholder="Enter account holder name"
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="bankAccount">Bank Account Number</Label>
+                      <Input
+                        id="bankAccount"
+                        type="text"
+                        value={bankAccount}
+                        onChange={(e) => setBankAccount(e.target.value)}
+                        placeholder="Enter bank account number"
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="ifsc">IFSC Code</Label>
+                      <Input
+                        id="ifsc"
+                        type="text"
+                        value={ifsc}
+                        onChange={(e) => setIfsc(e.target.value.toUpperCase())}
+                        placeholder="Enter IFSC code"
+                        maxLength={11}
+                        required
+                      />
+                    </div>
+                  </div>
                   
                   <div className="bg-gray-800 rounded-lg p-4">
                     <div className="text-sm space-y-1">
@@ -279,6 +336,10 @@ export default function Wallet() {
                         <span className="text-muted-foreground">Processing Time:</span>
                         <span>2-4 hours</span>
                       </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Payment Method:</span>
+                        <span>Bank Transfer (Cashfree)</span>
+                      </div>
                     </div>
                   </div>
                   
@@ -288,7 +349,7 @@ export default function Wallet() {
                     disabled={withdrawMutation.isPending}
                   >
                     <ArrowUp className="w-4 h-4 mr-2" />
-                    {withdrawMutation.isPending ? "Processing..." : "Withdraw Money"}
+                    {withdrawMutation.isPending ? "Processing..." : "Withdraw via Cashfree"}
                   </Button>
                 </form>
               </DialogContent>
