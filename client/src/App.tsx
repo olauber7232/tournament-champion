@@ -12,20 +12,21 @@ import TopBar from "@/components/TopBar";
 import BottomNavigation from "@/components/BottomNavigation";
 
 // Pages
-import Dashboard from "@/pages/Dashboard";
-import Wallet from "@/pages/Wallet";
-import Winners from "@/pages/Winners";
-import Earn from "@/pages/Earn";
-import Profile from "@/pages/Profile";
-import Tournaments from "@/pages/Tournaments";
-import Auth from "@/pages/Auth";
-import Help from "@/pages/Help";
-import Admin from "@/pages/Admin";
-import NotFound from "@/pages/not-found";
-import PaymentSuccess from "@/pages/PaymentSuccess";
-import About from "@/pages/About";
-import Terms from "@/pages/Terms";
-import RefundPolicy from "@/pages/RefundPolicy";
+import Dashboard from "./pages/Dashboard";
+import Tournaments from "./pages/Tournaments";
+import Wallet from "./pages/Wallet";
+import Earn from "./pages/Earn";
+import Winners from "./pages/Winners";
+import Profile from "./pages/Profile";
+import Help from "./pages/Help";
+import Admin from "./pages/Admin";
+import Auth from "./pages/Auth";
+import About from "./pages/About";
+import Terms from "./pages/Terms";
+import RefundPolicy from "./pages/RefundPolicy";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import Settings from "./pages/Settings";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 function AppContent() {
   const { isLoggedIn, isLoading } = useAuth();
@@ -120,6 +121,8 @@ function Router() {
       <Route path="/about" component={() => <About />} />
       <Route path="/terms" component={() => <Terms />} />
       <Route path="/refund-policy" component={() => <RefundPolicy />} />
+      <Route path="/settings" component={() => <Settings />} />
+      <Route path="/privacy-policy" component={() => <PrivacyPolicy />} />
       <Route component={AppContent} />
     </Switch>
   );

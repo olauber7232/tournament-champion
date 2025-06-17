@@ -1,4 +1,3 @@
-
 import { randomUUID } from 'crypto';
 import crypto from 'crypto';
 
@@ -61,6 +60,7 @@ export class CashfreePaymentService {
       'x-api-version': '2023-08-01',
       'x-client-id': this.appId,
       'x-client-secret': this.secretKey,
+      'x-request-id': `req_${Date.now()}`
     };
   }
 
@@ -80,7 +80,7 @@ export class CashfreePaymentService {
     customerPhone: string = '9999999999'
   ): Promise<CashfreePaymentResponse> {
     const orderId = `KIRDA_${userId}_${Date.now()}`;
-    
+
     const paymentRequest: CashfreePaymentRequest = {
       orderId,
       orderAmount: amount,
@@ -163,7 +163,7 @@ export class CashfreePaymentService {
     address: string
   ): Promise<any> {
     const beneId = `BENE_${userId}_${Date.now()}`;
-    
+
     const beneficiaryData = {
       beneId,
       name,
@@ -204,7 +204,7 @@ export class CashfreePaymentService {
     remarks: string = 'Gaming platform withdrawal'
   ): Promise<any> {
     const transferId = `WITHDRAW_${userId}_${Date.now()}`;
-    
+
     const withdrawRequest: CashfreeWithdrawRequest = {
       beneId,
       amount,
@@ -262,7 +262,7 @@ export class CashfreePaymentService {
       .createHmac('sha256', this.secretKey)
       .update(timestamp + payload)
       .digest('hex');
-    
+
     return expectedSignature === signature;
   }
 }

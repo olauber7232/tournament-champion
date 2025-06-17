@@ -100,6 +100,7 @@ export default function Profile({ onNavigate }: ProfileProps) {
         <Button
           variant="outline"
           className="w-full justify-between bg-gray-850 border-border hover:bg-gray-800"
+          onClick={() => onNavigate('settings')}
         >
           <div className="flex items-center">
             <Settings className="w-5 h-5 mr-3 text-muted-foreground" />
@@ -147,6 +148,7 @@ export default function Profile({ onNavigate }: ProfileProps) {
         <Button
           variant="outline"
           className="w-full justify-between bg-gray-850 border-border hover:bg-gray-800"
+          onClick={() => onNavigate('privacy-policy')}
         >
           <div className="flex items-center">
             <Shield className="w-5 h-5 mr-3 text-secondary" />

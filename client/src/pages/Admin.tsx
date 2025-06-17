@@ -41,6 +41,7 @@ export default function Admin() {
     startTime: '',
     rules: '',
     mapName: '',
+    imageUrl: '',
   });
   
   const [broadcastMessage, setBroadcastMessage] = useState({
@@ -94,6 +95,7 @@ export default function Admin() {
         startTime: '',
         rules: '',
         mapName: '',
+        imageUrl: '',
       });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/tournaments'] });
     },
@@ -355,6 +357,7 @@ export default function Admin() {
                         type="datetime-local"
                         value={newTournament.startTime}
                         onChange={(e) => setNewTournament(prev => ({ ...prev, startTime: e.target.value }))}
+                        min={new Date().toISOString().slice(0, 16)}
                         required
                       />
                     </div>
@@ -367,6 +370,25 @@ export default function Admin() {
                         value={newTournament.rules}
                         onChange={(e) => setNewTournament(prev => ({ ...prev, rules: e.target.value }))}
                         placeholder="Tournament rules and regulations..."
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="image">Tournament Banner Image</Label>
+                      <Input
+                        id="image"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              setNewTournament(prev => ({ ...prev, imageUrl: event.target?.result as string }));
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
                       />
                     </div>
 

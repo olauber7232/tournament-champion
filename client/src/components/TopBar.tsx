@@ -1,5 +1,7 @@
 import { Trophy, Wallet, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
 
 interface TopBarProps {
   onWalletClick: () => void;
@@ -7,6 +9,8 @@ interface TopBarProps {
 }
 
 export default function TopBar({ onWalletClick, onNotificationClick }: TopBarProps) {
+  const [showNotifications, setShowNotifications] = useState(false);
+
   return (
     <header className="bg-gray-850 border-b border-border px-4 py-3 flex items-center justify-between sticky top-0 z-40">
       <div className="flex items-center">
@@ -15,7 +19,7 @@ export default function TopBar({ onWalletClick, onNotificationClick }: TopBarPro
         </div>
         <span className="font-bold text-lg">Kirda</span>
       </div>
-      
+
       <div className="flex items-center space-x-4">
         <Button variant="ghost" size="icon" onClick={onWalletClick} className="relative">
           <Wallet className="w-5 h-5" />
@@ -23,11 +27,21 @@ export default function TopBar({ onWalletClick, onNotificationClick }: TopBarPro
             ₹
           </span>
         </Button>
-        
-        <Button variant="ghost" size="icon" onClick={onNotificationClick} className="relative">
-          <Bell className="w-5 h-5" />
-          <span className="absolute -top-1 -right-1 bg-destructive w-2 h-2 rounded-full"></span>
-        </Button>
+
+        <Button 
+            variant="ghost" 
+            size="icon" 
+            className="relative"
+            onClick={onNotificationClick}
+          >
+            <Bell className="w-5 h-5" />
+            <Badge 
+              variant="destructive" 
+              className="absolute -top-1 -right-1 w-5 h-5 p-0 text-xs flex items-center justify-center"
+            >
+              1
+            </Badge>
+          </Button>
       </div>
     </header>
   );

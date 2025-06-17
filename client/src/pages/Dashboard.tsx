@@ -37,49 +37,41 @@ export default function Dashboard({ onNavigate, onDeposit, onWithdraw }: Dashboa
 
   return (
     <div className="space-y-6">
-      {/* Wallet Summary Cards */}
-      <div className="grid grid-cols-3 gap-3">
-        <Card className="bg-gradient-to-br from-gray-850 to-gray-800 border-border">
-          <CardContent className="p-4">
-            <div className="text-xs text-muted-foreground mb-1">Deposit</div>
-            <div className="text-lg font-bold text-accent">
-              {formatCurrency(user.depositWallet)}
+      {/* Game Banners */}
+      <div className="space-y-4">
+        <Card className="bg-gradient-to-r from-orange-600 to-red-600 border-0 overflow-hidden">
+          <CardContent className="p-6 relative">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-white mb-2">Free Fire Tournament</h3>
+                <p className="text-orange-100 mb-3">Join the ultimate battle royale experience</p>
+                <Button className="bg-white text-orange-600 hover:bg-orange-50">
+                  Play Now
+                </Button>
+              </div>
+              <div className="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <Flame className="w-10 h-10 text-white" />
+              </div>
             </div>
-            <div className="text-xs text-muted-foreground">Entry Coins</div>
           </CardContent>
         </Card>
-        
-        <Card className="bg-gradient-to-br from-gray-850 to-gray-800 border-border">
-          <CardContent className="p-4">
-            <div className="text-xs text-muted-foreground mb-1">Withdrawal</div>
-            <div className="text-lg font-bold text-primary">
-              {formatCurrency(user.withdrawalWallet)}
-            </div>
-            <div className="text-xs text-muted-foreground">Cash</div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-gray-850 to-gray-800 border-border">
-          <CardContent className="p-4">
-            <div className="text-xs text-muted-foreground mb-1">Referral</div>
-            <div className="text-lg font-bold text-warning">
-              {formatCurrency(user.referralWallet)}
-            </div>
-            <div className="text-xs text-muted-foreground">Coins</div>
-          </CardContent>
-        </Card>
-      </div>
 
-      {/* Quick Actions */}
-      <div className="flex space-x-3">
-        <Button onClick={onDeposit} className="flex-1 gradient-accent">
-          <Plus className="w-4 h-4 mr-2" />
-          Deposit
-        </Button>
-        <Button onClick={onWithdraw} className="flex-1 gradient-gaming">
-          <ArrowUp className="w-4 h-4 mr-2" />
-          Withdraw
-        </Button>
+        <Card className="bg-gradient-to-r from-blue-600 to-purple-600 border-0 overflow-hidden">
+          <CardContent className="p-6 relative">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-white mb-2">BGMI Championship</h3>
+                <p className="text-blue-100 mb-3">Battle for glory in intense squad matches</p>
+                <Button className="bg-white text-blue-600 hover:bg-blue-50">
+                  Join Battle
+                </Button>
+              </div>
+              <div className="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <Crosshair className="w-10 h-10 text-white" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Tournament Games Section */}
