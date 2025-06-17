@@ -161,3 +161,146 @@ export default function Dashboard({ onNavigate, onDeposit, onWithdraw }: Dashboa
     </div>
   );
 }
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Trophy, Users, Clock, Star, GamepadIcon } from "lucide-react";
+
+interface DashboardProps {
+  onNavigate: (page: string, gameId?: number) => void;
+  onDeposit: () => void;
+  onWithdraw: () => void;
+}
+
+export default function Dashboard({ onNavigate, onDeposit, onWithdraw }: DashboardProps) {
+  const [games] = useState([
+    { id: 1, name: "freefire", displayName: "Free Fire", icon: "🔥" },
+    { id: 2, name: "bgmi", displayName: "BGMI", icon: "🎯" },
+    { id: 3, name: "codmobile", displayName: "COD Mobile", icon: "⚔️" }
+  ]);
+
+  const [upcomingTournaments] = useState([
+    {
+      id: 1,
+      title: "Free Fire Pro League",
+      game: "Free Fire",
+      entryFee: 50,
+      prizePool: 5000,
+      maxPlayers: 100,
+      startTime: "2024-01-15T18:00:00Z",
+      participants: 75
+    },
+    {
+      id: 2,
+      title: "BGMI Championship",
+      game: "BGMI",
+      entryFee: 100,
+      prizePool: 10000,
+      maxPlayers: 64,
+      startTime: "2024-01-16T19:00:00Z",
+      participants: 45
+    }
+  ]);
+
+  return (
+    <div className="space-y-6">
+      {/* Welcome Section */}
+      <div className="text-center space-y-2">
+        <h1 className="text-2xl font-bold gradient-text">Welcome to Kirda</h1>
+        <p className="text-muted-foreground">Join tournaments and win exciting prizes!</p>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-2 gap-4">
+        <Card className="bg-gray-850 border-border">
+          <CardContent className="p-4 text-center">
+            <Trophy className="w-8 h-8 text-accent mx-auto mb-2" />
+            <div className="text-lg font-bold">0</div>
+            <div className="text-sm text-muted-foreground">Tournaments Won</div>
+          </CardContent>
+        </Card>
+        <Card className="bg-gray-850 border-border">
+          <CardContent className="p-4 text-center">
+            <Star className="w-8 h-8 text-accent mx-auto mb-2" />
+            <div className="text-lg font-bold">₹0</div>
+            <div className="text-sm text-muted-foreground">Total Winnings</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Games Section */}
+      <Card className="bg-gray-850 border-border">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <GamepadIcon className="w-5 h-5 text-accent" />
+            Popular Games
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-3 gap-3">
+            {games.map((game) => (
+              <Button
+                key={game.id}
+                variant="outline"
+                className="h-auto p-4 flex flex-col items-center gap-2"
+                onClick={() => onNavigate('tournaments', game.id)}
+              >
+                <div className="text-2xl">{game.icon}</div>
+                <div className="text-xs text-center">{game.displayName}</div>
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Upcoming Tournaments */}
+      <Card className="bg-gray-850 border-border">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="w-5 h-5 text-accent" />
+            Upcoming Tournaments
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {upcomingTournaments.map((tournament) => (
+            <Card key={tournament.id} className="bg-gray-800 border-gray-700">
+              <CardContent className="p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <h3 className="font-semibold text-sm">{tournament.title}</h3>
+                    <p className="text-xs text-muted-foreground">{tournament.game}</p>
+                  </div>
+                  <Badge variant="secondary" className="text-xs">
+                    {tournament.participants}/{tournament.maxPlayers}
+                  </Badge>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <div className="space-y-1">
+                    <div>Entry: ₹{tournament.entryFee}</div>
+                    <div className="text-accent">Prize: ₹{tournament.prizePool}</div>
+                  </div>
+                  <Button size="sm" onClick={() => onNavigate('tournaments')}>
+                    Join Now
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 gap-4">
+        <Button variant="outline" onClick={() => onNavigate('wallet')}>
+          <Users className="w-4 h-4 mr-2" />
+          My Wallet
+        </Button>
+        <Button variant="outline" onClick={() => onNavigate('winners')}>
+          <Trophy className="w-4 h-4 mr-2" />
+          Recent Winners
+        </Button>
+      </div>
+    </div>
+  );
+}

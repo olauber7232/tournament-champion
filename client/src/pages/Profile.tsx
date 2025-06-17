@@ -128,6 +128,39 @@ export default function Profile({ onNavigate }: ProfileProps) {
         </Button>
       </div>
 
+      {/* Legal Pages */}
+      <Card className="bg-gray-850 border-border">
+        <CardHeader>
+          <CardTitle className="text-lg">Legal Information</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start" 
+            onClick={() => window.open('/about', '_blank')}
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            About Us
+          </Button>
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start" 
+            onClick={() => window.open('/terms', '_blank')}
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            Terms & Conditions
+          </Button>
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start" 
+            onClick={() => window.open('/refund-policy', '_blank')}
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            Refund Policy
+          </Button>
+        </CardContent>
+      </Card>
+
       {/* Additional Info */}
       <Card className="bg-gray-850 border-border">
         <CardContent className="p-4">
