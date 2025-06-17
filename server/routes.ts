@@ -112,14 +112,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid amount. Minimum deposit is ₹20" });
       }
 
-      const user = await storage.getUser(userId);
+      // Convert string userId to number if needed
+      const userIdNum = typeof userId === 'string' ? parseInt(userId) : userId;
+      
+      const user = await storage.getUser(userIdNum);
       if (!user) {
+        console.error(`User not found for ID: ${userIdNum}`);
         return res.status(404).json({ message: "User not found" });
       }
 
       // Create Cashfree order
       const order = await cashfreeService.createOrder(
-        userId,
+        userIdNum,
         parseFloat(amount),
         user.username
       );
@@ -557,6 +561,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch messages" });
     }
+  });
+
+  // Payment success page route
+  app.get("/payment-success", (req, res) => {
+    res.redirect(`/?page=payment-success&order_id=${req.query.order_id}&status=${req.query.status}`);
   });
 
   const httpServer = createServer(app);

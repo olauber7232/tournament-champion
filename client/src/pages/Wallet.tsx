@@ -39,12 +39,17 @@ export default function Wallet() {
       return response.json();
     },
     onSuccess: (data) => {
+      // Store order ID for verification
+      sessionStorage.setItem('pendingOrderId', data.orderId);
+      
       // Redirect to Cashfree payment page
       const cashfreeCheckoutUrl = `https://sandbox.cashfree.com/pg/view/order/${data.orderId}?token=${data.paymentSessionId}`;
-      window.open(cashfreeCheckoutUrl, '_blank');
+      window.location.href = cashfreeCheckoutUrl;
       
-      // Start polling for payment verification
-      verifyPaymentMutation.mutate(data.orderId);
+      toast({ 
+        title: "Redirecting to payment", 
+        description: "You will be redirected to complete the payment" 
+      });
     },
     onError: (error: any) => {
       toast({ title: "Payment initiation failed", description: error.message, variant: "destructive" });
@@ -53,9 +58,7 @@ export default function Wallet() {
 
   const verifyPaymentMutation = useMutation({
     mutationFn: async (orderId: string) => {
-      // Poll for payment status with delay
-      await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds before first check
-      
+      // Start verification immediately, then poll
       const response = await apiRequest('POST', '/api/payment/verify', { orderId });
       return response.json();
     },
@@ -66,11 +69,20 @@ export default function Wallet() {
         setShowDepositModal(false);
         queryClient.invalidateQueries();
       } else {
-        toast({ title: "Payment pending", description: "Please complete the payment process", variant: "destructive" });
+        // If payment is not completed, show appropriate message
+        toast({ 
+          title: "Payment status", 
+          description: data.message || "Please complete the payment process",
+          variant: data.status === 'PENDING' ? "default" : "destructive"
+        });
       }
     },
     onError: (error: any) => {
-      toast({ title: "Payment verification failed", description: "Please contact support if payment was deducted", variant: "destructive" });
+      toast({ 
+        title: "Payment verification failed", 
+        description: "Please try again or contact support if payment was deducted", 
+        variant: "destructive" 
+      });
     },
   });
 
