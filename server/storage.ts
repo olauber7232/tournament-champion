@@ -77,6 +77,27 @@ export class MemStorage implements IStorage {
   }
 
   private initializeDefaultData() {
+    // Initialize default admin user
+    const adminUser: User = {
+      id: this.currentUserId++,
+      username: 'admin',
+      password: 'admin123',
+      recoveryQuestion: 'What is your favorite game?',
+      recoveryAnswer: 'Free Fire',
+      referralCode: this.generateReferralCode(),
+      depositWallet: '1000.00',
+      withdrawalWallet: '500.00',
+      referralWallet: '200.00',
+      isAdmin: true,
+      totalEarned: '0.00',
+      totalReferrals: 0,
+      tournamentsPlayed: 0,
+      wins: 0,
+      referredBy: null,
+      createdAt: new Date(),
+    };
+    this.users.set(adminUser.id, adminUser);
+
     // Initialize default games
     const defaultGames = [
       { name: 'freefire', displayName: 'Free Fire', icon: 'fas fa-fire', description: 'Battle Royale', isActive: true },
@@ -104,6 +125,7 @@ export class MemStorage implements IStorage {
         status: 'upcoming',
         rules: 'No cheating, fair play only',
         mapName: 'Bermuda',
+        imageUrl: null,
       },
       {
         gameId: 2,
@@ -117,6 +139,7 @@ export class MemStorage implements IStorage {
         status: 'upcoming',
         rules: 'Solo gameplay only',
         mapName: 'Erangel',
+        imageUrl: null,
       },
     ];
 

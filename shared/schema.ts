@@ -42,6 +42,7 @@ export const tournaments = pgTable("tournaments", {
   status: text("status").notNull().default("upcoming"), // upcoming, active, completed, cancelled
   rules: text("rules").notNull(),
   mapName: text("map_name"),
+  imageUrl: text("image_url"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -112,6 +113,7 @@ export const insertTournamentSchema = createInsertSchema(tournaments).pick({
   startTime: true,
   rules: true,
   mapName: true,
+  imageUrl: true,
 });
 
 export const insertTournamentEntrySchema = createInsertSchema(tournamentEntries).pick({
