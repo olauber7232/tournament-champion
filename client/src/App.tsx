@@ -12,6 +12,13 @@ import TopBar from "@/components/TopBar";
 import BottomNavigation from "@/components/BottomNavigation";
 
 // Pages
+import Dashboard from "@/pages/Dashboard";
+import Wallet from "@/pages/Wallet";
+import Winners from "@/pages/Winners";
+import Earn from "@/pages/Earn";
+import Profile from "@/pages/Profile";
+import Tournaments from "@/pages/Tournaments";
+import Auth from "@/pages/Auth";
 import Help from "@/pages/Help";
 import Admin from "@/pages/Admin";
 import NotFound from "@/pages/not-found";
