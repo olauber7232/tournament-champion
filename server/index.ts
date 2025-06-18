@@ -1,11 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { createServer } from "http";
 import { registerRoutes } from "./routes";
-import { createProxyMiddleware } from "http-proxy-middleware";
-import dotenv from "dotenv";
-
-// Load environment variables
-dotenv.config();
+import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 app.use(express.json());
