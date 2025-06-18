@@ -49,7 +49,7 @@ export class CashfreePaymentService {
     // Use your provided credentials
     this.appId = process.env.CASHFREE_APP_ID || 'TEST105548987e17e6996710a080920b89845501';
     this.secretKey = process.env.CASHFREE_SECRET_KEY || 'cfsk_ma_test_a2dbfa097e2b0b855045c13041c2f85e_ba39c253';
-    // Use sandbox URLs for testing
+    // Use correct sandbox URLs for testing
     this.baseUrl = 'https://sandbox.cashfree.com/pg';
     this.payoutsBaseUrl = 'https://payout-gamma.cashfree.com/payout/v1';
   }
@@ -57,10 +57,10 @@ export class CashfreePaymentService {
   private getHeaders() {
     return {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
       'x-api-version': '2023-08-01',
       'x-client-id': this.appId,
       'x-client-secret': this.secretKey,
-      'x-request-id': `req_${Date.now()}`
     };
   }
 
@@ -81,35 +81,40 @@ export class CashfreePaymentService {
   ): Promise<CashfreePaymentResponse> {
     const orderId = `KIRDA_${userId}_${Date.now()}`;
 
-    const paymentRequest: CashfreePaymentRequest = {
-      orderId,
-      orderAmount: amount,
-      orderCurrency: 'INR',
-      customerDetails: {
-        customerId: userId.toString(),
-        customerName,
-        customerEmail,
-        customerPhone,
+    const paymentRequest = {
+      order_id: orderId,
+      order_amount: amount,
+      order_currency: 'INR',
+      customer_details: {
+        customer_id: userId.toString(),
+        customer_name: customerName,
+        customer_email: customerEmail,
+        customer_phone: customerPhone,
       },
-      orderMeta: {
-        returnUrl: `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment-success`,
-        notifyUrl: `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/api/payment/webhook`,
+      order_meta: {
+        return_url: `${process.env.REPLIT_DEV_DOMAIN || 'https://repl.it'}/payment-success`,
+        notify_url: `${process.env.REPLIT_DEV_DOMAIN || 'https://repl.it'}/api/payment/webhook`,
       },
     };
 
     try {
+      console.log('Creating Cashfree order with data:', JSON.stringify(paymentRequest, null, 2));
+      console.log('Using headers:', this.getHeaders());
+      
       const response = await fetch(`${this.baseUrl}/orders`, {
         method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify(paymentRequest),
       });
 
+      const responseText = await response.text();
+      console.log('Cashfree API response:', response.status, responseText);
+
       if (!response.ok) {
-        const errorData = await response.text();
-        throw new Error(`Cashfree API error: ${response.status} - ${errorData}`);
+        throw new Error(`Cashfree API error: ${response.status} - ${responseText}`);
       }
 
-      return await response.json();
+      return JSON.parse(responseText);
     } catch (error) {
       console.error('Cashfree order creation failed:', error);
       throw error;
