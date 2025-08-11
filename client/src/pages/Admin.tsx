@@ -62,6 +62,32 @@ export default function Admin() {
     }
   };
 
+  // Queries - moved here to be unconditional
+  const { data: usersData } = useQuery<{ users: User[] }>({
+    queryKey: ['/api/admin/users'],
+    enabled: isAuthenticated,
+  });
+
+  const { data: tournamentsData } = useQuery<{ tournaments: TournamentWithGame[] }>({
+    queryKey: ['/api/admin/tournaments'],
+    enabled: isAuthenticated,
+  });
+
+  const { data: transactionsData } = useQuery<{ transactions: Transaction[] }>({
+    queryKey: ['/api/admin/transactions'],
+    enabled: isAuthenticated,
+  });
+
+  const { data: helpRequestsData } = useQuery<{ helpRequests: HelpRequest[] }>({
+    queryKey: ['/api/admin/help-requests'],
+    enabled: isAuthenticated,
+  });
+
+  const { data: gamesData } = useQuery<{ games: Game[] }>({
+    queryKey: ['/api/games'],
+    enabled: isAuthenticated,
+  });
+
   // Show login form if not authenticated
   if (!isAuthenticated) {
     return (
@@ -102,27 +128,6 @@ export default function Admin() {
       </div>
     );
   }
-
-  // Queries
-  const { data: usersData } = useQuery<{ users: User[] }>({
-    queryKey: ['/api/admin/users'],
-  });
-
-  const { data: tournamentsData } = useQuery<{ tournaments: TournamentWithGame[] }>({
-    queryKey: ['/api/admin/tournaments'],
-  });
-
-  const { data: transactionsData } = useQuery<{ transactions: Transaction[] }>({
-    queryKey: ['/api/admin/transactions'],
-  });
-
-  const { data: helpRequestsData } = useQuery<{ helpRequests: HelpRequest[] }>({
-    queryKey: ['/api/admin/help-requests'],
-  });
-
-  const { data: gamesData } = useQuery<{ games: Game[] }>({
-    queryKey: ['/api/games'],
-  });
 
   // Mutations
   const createTournamentMutation = useMutation({

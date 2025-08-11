@@ -7,7 +7,7 @@ export default function About() {
   return (
     <div className="space-y-6">
       <div className="text-center space-y-4">
-        <h1 className="text-3xl font-bold gradient-text">About Kidra</h1>
+        <h1 className="text-3xl font-bold gradient-text">About Kirda</h1>
         <p className="text-lg text-muted-foreground">
           India's Next-Gen Online Gaming Tournament Platform
         </p>
@@ -17,12 +17,12 @@ export default function About() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Trophy className="w-6 h-6 text-accent" />
-            Welcome to Kidra
+            Welcome to Kirda
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-muted-foreground leading-relaxed">
-            At Kidra, we are passionate about eSports and committed to providing a fair and thrilling 
+            At Kirda, we are passionate about eSports and committed to providing a fair and thrilling 
             experience to mobile gamers across India. We organize regular online tournaments for popular 
             games like Free Fire, BGMI, and more, allowing gamers to compete, win exciting prizes, and 
             build a career in competitive gaming.
@@ -31,7 +31,7 @@ export default function About() {
           <p className="text-muted-foreground leading-relaxed">
             Our platform is user-friendly and designed with gamers in mind. We offer an integrated wallet 
             system, instant tournament access, referral rewards, and 24x7 support for any issues. Whether 
-            you are a casual gamer or a serious contender, Kidra is your destination to prove your skills 
+            you are a casual gamer or a serious contender, Kirda is your destination to prove your skills 
             and earn real rewards.
           </p>
 

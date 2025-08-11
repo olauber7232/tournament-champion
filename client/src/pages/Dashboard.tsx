@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, ArrowUp, Gamepad2, Clock, Flame, Crosshair, Skull } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Trophy, Users, Clock, ArrowRight } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-import type { Game, Transaction } from "@shared/schema";
+import type { Game, TournamentWithGame, User } from "@shared/schema";
 
 interface DashboardProps {
   onNavigate: (page: string, gameId?: number) => void;
@@ -12,98 +13,166 @@ interface DashboardProps {
   onWithdraw: () => void;
 }
 
-const gameIcons = {
-  freefire: Flame,
-  bgmi: Crosshair,
-  codm: Skull,
-};
-
 export default function Dashboard({ onNavigate, onDeposit, onWithdraw }: DashboardProps) {
-  const { user } = useAuth();
+  const userId = parseInt(localStorage.getItem('userId') || '0');
+
+  const { data: userData } = useQuery<{ user: User }>({
+    queryKey: ['/api/user', userId],
+  });
 
   const { data: gamesData } = useQuery<{ games: Game[] }>({
     queryKey: ['/api/games'],
   });
 
-  const { data: transactionsData } = useQuery<{ transactions: Transaction[] }>({
-    queryKey: [`/api/transactions/${user?.id}`],
-    enabled: !!user?.id,
+  const { data: tournamentsData } = useQuery<{ tournaments: TournamentWithGame[] }>({
+    queryKey: ['/api/tournaments'],
   });
 
+  const user = userData?.user;
   const games = gamesData?.games || [];
-  const recentTransactions = transactionsData?.transactions?.slice(0, 3) || [];
+  const tournaments = tournamentsData?.tournaments || [];
 
-  if (!user) return null;
+  const onGameSelect = (gameId: number) => {
+    onNavigate('tournaments', gameId);
+  };
+
+  const totalWalletBalance = user 
+    ? (parseFloat(user.depositWallet || '0') + parseFloat(user.withdrawalWallet || '0')).toFixed(2)
+    : '0.00';
 
   return (
     <div className="space-y-6">
-      {/* Game Banners */}
-      <div className="space-y-4">
-        <Card className="bg-gradient-to-r from-orange-600 to-red-600 border-0 overflow-hidden">
-          <CardContent className="p-6 relative">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-xl font-bold text-white mb-2">Free Fire Tournament</h3>
-                <p className="text-orange-100 mb-3">Join the ultimate battle royale experience</p>
-                <Button className="bg-white text-orange-600 hover:bg-orange-50">
-                  Play Now
-                </Button>
+      {/* Welcome Header */}
+      <div className="text-center">
+        <h1 className="text-2xl font-bold mb-2">
+          Welcome back, {user?.username || 'Player'}! 🎮
+        </h1>
+        <p className="text-muted-foreground">Ready to dominate the leaderboards?</p>
+      </div>
+
+      {/* Wallet Overview */}
+      <Card className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 border-border">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Total Balance</h3>
+              <div className="text-3xl font-bold text-accent">
+                {formatCurrency(parseFloat(totalWalletBalance))}
               </div>
-              <div className="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                <Flame className="w-10 h-10 text-white" />
+              <div className="flex items-center space-x-4 mt-4 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Deposit: </span>
+                  <span className="font-semibold">{formatCurrency(parseFloat(user?.depositWallet || '0'))}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Winnings: </span>
+                  <span className="font-semibold">{formatCurrency(parseFloat(user?.withdrawalWallet || '0'))}</span>
+                </div>
               </div>
             </div>
+            <div className="flex flex-col space-y-2">
+              <Button onClick={onDeposit} className="gradient-gaming">
+                Add Money
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={onWithdraw}
+                className="border-accent text-accent hover:bg-accent hover:text-white"
+              >
+                Withdraw
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-3 gap-4">
+        <Card className="bg-gray-850 border-border">
+          <CardContent className="p-4 text-center">
+            <Trophy className="w-6 h-6 text-accent mx-auto mb-2" />
+            <div className="text-lg font-semibold">0</div>
+            <div className="text-xs text-muted-foreground">Wins</div>
           </CardContent>
         </Card>
-
-        <Card className="bg-gradient-to-r from-blue-600 to-purple-600 border-0 overflow-hidden">
-          <CardContent className="p-6 relative">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-xl font-bold text-white mb-2">BGMI Championship</h3>
-                <p className="text-blue-100 mb-3">Battle for glory in intense squad matches</p>
-                <Button className="bg-white text-blue-600 hover:bg-blue-50">
-                  Join Battle
-                </Button>
-              </div>
-              <div className="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                <Crosshair className="w-10 h-10 text-white" />
-              </div>
-            </div>
+        <Card className="bg-gray-850 border-border">
+          <CardContent className="p-4 text-center">
+            <Users className="w-6 h-6 text-blue-500 mx-auto mb-2" />
+            <div className="text-lg font-semibold">{user?.totalReferrals || 0}</div>
+            <div className="text-xs text-muted-foreground">Referrals</div>
+          </CardContent>
+        </Card>
+        <Card className="bg-gray-850 border-border">
+          <CardContent className="p-4 text-center">
+            <Clock className="w-6 h-6 text-green-500 mx-auto mb-2" />
+            <div className="text-lg font-semibold">{tournaments.filter(t => t.status === 'upcoming').length}</div>
+            <div className="text-xs text-muted-foreground">Live</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Tournament Games Section */}
-      <div>
-        <h2 className="text-xl font-bold mb-4 flex items-center">
-          <Gamepad2 className="w-5 h-5 mr-2 text-primary" />
-          Tournament Games
-        </h2>
+      {/* Featured Tournament Games with Photos */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">🎮 Tournament Games</h2>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => onNavigate('tournaments')}
+            className="text-accent hover:text-accent"
+          >
+            View All <ArrowRight className="w-4 h-4 ml-1" />
+          </Button>
+        </div>
         
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-4">
           {games.map((game) => {
-            const IconComponent = gameIcons[game.name as keyof typeof gameIcons] || Gamepad2;
+            const gameImage = getGameImage(game.name);
+            const activeTournaments = tournaments.filter(t => t.gameId === game.id && t.status === 'upcoming').length;
             
             return (
               <Card 
-                key={game.id}
-                className="bg-gradient-to-r from-gray-850 to-gray-800 border-border hover:border-primary transition-colors cursor-pointer"
-                onClick={() => onNavigate('tournaments', game.id)}
+                key={game.id} 
+                className="bg-gray-850 border-border cursor-pointer hover:bg-gray-800 transition-all duration-300 overflow-hidden group"
+                onClick={() => onGameSelect(game.id)}
               >
+                <div className="relative">
+                  {/* Game Banner Image */}
+                  <div 
+                    className="h-32 bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center relative overflow-hidden"
+                    style={{
+                      backgroundImage: `linear-gradient(135deg, rgba(147, 51, 234, 0.8), rgba(37, 99, 235, 0.8)), url(${gameImage})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center'
+                    }}
+                  >
+                    <div className="text-4xl">{game.icon}</div>
+                    
+                    {/* Active Tournament Badge */}
+                    <div className="absolute top-3 right-3">
+                      <Badge className="bg-green-600 hover:bg-green-700 text-white">
+                        {activeTournaments} Active
+                      </Badge>
+                    </div>
+                    
+                    {/* Prize Pool Badge */}
+                    <div className="absolute bottom-3 left-3">
+                      <Badge className="bg-black/60 backdrop-blur-sm text-white border-0">
+                        ₹50k+ Prize Pool
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+                
                 <CardContent className="p-4">
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 gradient-gaming rounded-xl flex items-center justify-center mr-4">
-                      <IconComponent className="w-6 h-6 text-white" />
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold text-lg group-hover:text-accent transition-colors">
+                        {game.displayName}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">{game.description}</p>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg">{game.displayName}</h3>
-                      <p className="text-sm text-muted-foreground">{game.description} • 5 Active Tournaments</p>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-accent font-semibold">₹50K+</div>
-                      <div className="text-xs text-muted-foreground">Prize Pool</div>
-                    </div>
+                    <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all" />
                   </div>
                 </CardContent>
               </Card>
@@ -112,45 +181,50 @@ export default function Dashboard({ onNavigate, onDeposit, onWithdraw }: Dashboa
         </div>
       </div>
 
-      {/* Recent Activity */}
-      <div>
-        <h2 className="text-xl font-bold mb-4 flex items-center">
-          <Clock className="w-5 h-5 mr-2 text-secondary" />
-          Recent Activity
-        </h2>
-        
+      {/* Upcoming Tournaments */}
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold">⚡ Starting Soon</h2>
         <div className="space-y-3">
-          {recentTransactions.length > 0 ? (
-            recentTransactions.map((transaction) => (
-              <Card key={transaction.id} className="bg-gray-850 border-border">
+          {tournaments
+            .filter(t => t.status === 'upcoming')
+            .slice(0, 3)
+            .map((tournament) => (
+              <Card key={tournament.id} className="bg-gray-850 border-border">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-medium">{transaction.description}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {new Date(transaction.createdAt!).toLocaleDateString()}
+                    <div className="flex items-center space-x-3">
+                      <div className="text-xl">
+                        {games.find(g => g.id === tournament.gameId)?.icon || '🎮'}
+                      </div>
+                      <div>
+                        <h4 className="font-medium">{tournament.name}</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Entry: {formatCurrency(parseFloat(tournament.entryFee))} • 
+                          Prize: {formatCurrency(parseFloat(tournament.prizePool))}
+                        </p>
                       </div>
                     </div>
-                    <div className={`font-semibold ${
-                      parseFloat(transaction.amount) > 0 ? 'text-accent' : 'text-destructive'
-                    }`}>
-                      {parseFloat(transaction.amount) > 0 ? '+' : ''}
-                      {formatCurrency(transaction.amount)}
+                    <div className="text-right">
+                      <Badge variant="outline" className="border-green-500 text-green-500">
+                        {tournament.currentPlayers || 0}/{tournament.maxPlayers} Players
+                      </Badge>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            ))
-          ) : (
-            <Card className="bg-gray-850 border-border">
-              <CardContent className="p-4 text-center text-muted-foreground">
-                No recent activity
-              </CardContent>
-            </Card>
-          )}
+            ))}
         </div>
       </div>
     </div>
   );
 }
 
+function getGameImage(gameName: string): string {
+  const gameImages = {
+    'freefire': 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=200&fit=crop',
+    'bgmi': 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=200&fit=crop',
+    'codmobile': 'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=400&h=200&fit=crop'
+  };
+  
+  return gameImages[gameName as keyof typeof gameImages] || 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=200&fit=crop';
+}

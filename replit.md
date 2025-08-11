@@ -131,15 +131,18 @@ The application follows a modern full-stack architecture with clear separation o
 - August 11, 2025. Fixed all major issues: help request responses now display for users, referral code validation works properly, broadcast messages show in notification panel, and fully functional Earn section with real referral tracking
 - August 11, 2025. Secured admin panel with proper authentication using username "govind" and password "govind@1234"
 - August 11, 2025. Enhanced real-time polling for notifications and help request updates every 5 seconds
+- August 11, 2025. Fixed React hooks error in admin panel and updated payment order creation with proper userId parsing
+- August 11, 2025. Created dedicated Transaction History page and enhanced Settings with complete policy content
+- August 11, 2025. Fixed referral validation logic to properly handle empty codes and improved user flow
 
 ## Recent Changes (August 11, 2025)
-✓ Fixed referral code validation in registration system
-✓ Enhanced help request system with admin responses visible to users
-✓ Fixed broadcast messaging to properly display admin messages
-✓ Created fully functional Earn section with real referral tracking
-✓ Added real-time notification polling system (5-second intervals)
-✓ Secured admin panel authentication
-✓ Fixed tournament datetime picker with proper validation
+✓ Fixed React hooks error in admin panel authentication
+✓ Fixed payment create-order parseInt handling for user IDs
+✓ Created dedicated Transaction History page replacing wallet redirect
+✓ Enhanced Settings page with complete About Us, Terms, Privacy Policy content
+✓ Fixed referral code validation to properly allow empty codes
+✓ Updated company branding from "Kidra" to "Kirda" in About page
+✓ Added Settings navigation button to Profile page
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.

@@ -18,9 +18,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Username already exists" });
       }
 
-      // Check if referral code is valid (if provided)
+      // Check if referral code is valid (if provided and not empty)
       if (userData.referredBy && userData.referredBy.trim() !== '') {
-        const referrer = await storage.getUserByReferralCode(userData.referredBy);
+        const users = await storage.getUsers();
+        const referrer = users.find(user => user.referralCode === userData.referredBy);
         if (!referrer) {
           return res.status(400).json({ message: "Invalid referral code" });
         }

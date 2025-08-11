@@ -27,6 +27,7 @@ import RefundPolicy from "./pages/RefundPolicy";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import Settings from "./pages/Settings";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TransactionHistory from "./pages/TransactionHistory";
 
 function AppContent() {
   const { isLoggedIn, isLoading } = useAuth();
@@ -95,6 +96,7 @@ function AppContent() {
           />
         )}
         {currentPage === 'wallet' && <Wallet />}
+        {currentPage === 'transaction-history' && <TransactionHistory onBack={() => setCurrentPage('profile')} />}
         {currentPage === 'winners' && <Winners />}
         {currentPage === 'earn' && <Earn />}
         {currentPage === 'profile' && <Profile onNavigate={handleNavigate} />}

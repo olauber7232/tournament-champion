@@ -76,7 +76,7 @@ export default function Profile({ onNavigate }: ProfileProps) {
         <Button
           variant="outline"
           className="w-full justify-between bg-gray-850 border-border hover:bg-gray-800"
-          onClick={() => onNavigate('wallet')}
+          onClick={() => onNavigate('transaction-history')}
         >
           <div className="flex items-center">
             <History className="w-5 h-5 mr-3 text-primary" />
