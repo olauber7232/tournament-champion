@@ -116,7 +116,7 @@ function AppContent() {
 function Router() {
   return (
     <Switch>
-      <Route path="/admin" component={() => <Admin />} />
+      <Route path="/govindgolu" component={() => <Admin />} />
       <Route path="/payment-success" component={() => <PaymentSuccess />} />
       <Route path="/about" component={() => <About />} />
       <Route path="/terms" component={() => <Terms />} />

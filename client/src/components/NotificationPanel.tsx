@@ -23,7 +23,7 @@ interface NotificationPanelProps {
 export default function NotificationPanel({ isOpen, onClose }: NotificationPanelProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  const { data: messagesData } = useQuery<{ messages: any[] }>({
+  const { data: messagesData, refetch } = useQuery<{ messages: any[] }>({
     queryKey: ['/api/admin/messages'],
     refetchInterval: 5000, // Poll every 5 seconds for new messages
   });

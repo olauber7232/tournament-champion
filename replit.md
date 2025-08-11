@@ -128,6 +128,18 @@ The application follows a modern full-stack architecture with clear separation o
 ## Changelog
 - June 15, 2025. Initial setup
 - June 15, 2025. Implemented Cashfree payment gateway integration with secure API credentials for real money deposits
+- August 11, 2025. Fixed all major issues: help request responses now display for users, referral code validation works properly, broadcast messages show in notification panel, and fully functional Earn section with real referral tracking
+- August 11, 2025. Secured admin panel with proper authentication using username "govind" and password "govind@1234"
+- August 11, 2025. Enhanced real-time polling for notifications and help request updates every 5 seconds
+
+## Recent Changes (August 11, 2025)
+✓ Fixed referral code validation in registration system
+✓ Enhanced help request system with admin responses visible to users
+✓ Fixed broadcast messaging to properly display admin messages
+✓ Created fully functional Earn section with real referral tracking
+✓ Added real-time notification polling system (5-second intervals)
+✓ Secured admin panel authentication
+✓ Fixed tournament datetime picker with proper validation
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.

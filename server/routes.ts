@@ -495,6 +495,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get user's help requests with admin responses
+  app.get("/api/help/:userId", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const helpRequests = await storage.getUserHelpRequests(userId);
+      res.json({ helpRequests });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch help requests" });
+    }
+  });
+
+  // Get user's referrals for earning section
+  app.get("/api/referrals/:userId", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const referrals = await storage.getUserReferrals(userId);
+      res.json({ referrals });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch referrals" });
+    }
+  });
+
   // Admin routes
   app.get("/api/admin/users", async (req, res) => {
     try {

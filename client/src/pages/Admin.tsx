@@ -30,6 +30,60 @@ import type { User, TournamentWithGame, Transaction, HelpRequest, Game } from "@
 export default function Admin() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loginData, setLoginData] = useState({ username: '', password: '' });
+
+  // Admin authentication check
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loginData.username === 'govind' && loginData.password === 'govind@1234') {
+      setIsAuthenticated(true);
+      toast({ title: "Login successful!", description: "Welcome to admin panel" });
+    } else {
+      toast({ title: "Access denied", description: "Invalid admin credentials", variant: "destructive" });
+    }
+  };
+
+  // Show login form if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="w-full max-w-md bg-gray-850 border-border">
+          <CardHeader>
+            <CardTitle className="text-center">Admin Login</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleAdminLogin} className="space-y-4">
+              <div>
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  value={loginData.username}
+                  onChange={(e) => setLoginData(prev => ({ ...prev, username: e.target.value }))}
+                  placeholder="Enter admin username"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={loginData.password}
+                  onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
+                  placeholder="Enter admin password"
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full gradient-gaming">
+                Login to Admin Panel
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
   
   const [newTournament, setNewTournament] = useState({
     gameId: '',
@@ -357,7 +411,7 @@ export default function Admin() {
                         type="datetime-local"
                         value={newTournament.startTime}
                         onChange={(e) => setNewTournament(prev => ({ ...prev, startTime: e.target.value }))}
-                        min={new Date().toISOString().slice(0, 16)}
+                        min={new Date(Date.now() + 60000).toISOString().slice(0, 16)}
                         required
                       />
                     </div>

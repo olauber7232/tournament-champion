@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Share2, Copy, Check, Users, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,34 +7,18 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { copyToClipboard, shareReferralLink, formatCurrency } from "@/lib/utils";
 
-const referralHistory = [
-  {
-    id: 1,
-    username: "NewGamer456",
-    joinedDate: "2 days ago",
-    depositAmount: "500",
-    commission: "35",
-  },
-  {
-    id: 2,
-    username: "ProPlayer789",
-    joinedDate: "5 days ago",
-    depositAmount: "1000",
-    commission: "70",
-  },
-  {
-    id: 3,
-    username: "GamerX123",
-    joinedDate: "1 week ago",
-    depositAmount: "750",
-    commission: "52.50",
-  },
-];
-
 export default function Earn() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
+
+  // Fetch user's referrals
+  const { data: referralsData } = useQuery<{ referrals: any[] }>({
+    queryKey: [`/api/referrals/${user?.id}`],
+    enabled: !!user?.id,
+  });
+
+  const referrals = referralsData?.referrals || [];
 
   const handleCopyReferralCode = async () => {
     if (!user?.referralCode) return;
@@ -208,17 +193,17 @@ export default function Earn() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {referralHistory.length > 0 ? (
-              referralHistory.map((referral) => (
+            {referrals.length > 0 ? (
+              referrals.map((referral: any) => (
                 <div key={referral.id} className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
                   <div>
                     <div className="font-medium">{referral.username}</div>
                     <div className="text-sm text-muted-foreground">
-                      Joined {referral.joinedDate} • Deposited {formatCurrency(referral.depositAmount)}
+                      Joined {new Date(referral.createdAt).toLocaleDateString()} • Deposit: {formatCurrency(referral.depositWallet)}
                     </div>
                   </div>
                   <div className="text-accent font-semibold">
-                    +{formatCurrency(referral.commission)}
+                    Commission: {formatCurrency((parseFloat(referral.depositWallet) * 0.07).toFixed(2))}
                   </div>
                 </div>
               ))

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Send, Mail, Phone, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,6 +42,13 @@ const faqItems = [
 export default function Help({ onBack }: HelpProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+
+  // Fetch user's help requests
+  const { data: helpRequestsData } = useQuery<{ helpRequests: any[] }>({
+    queryKey: [`/api/help/${user?.id}`],
+    enabled: !!user?.id,
+    refetchInterval: 5000, // Refresh every 5 seconds
+  });
   
   const [formData, setFormData] = useState({
     tournamentId: '',
@@ -178,6 +185,49 @@ export default function Help({ onBack }: HelpProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* User's Help Requests */}
+      {helpRequestsData?.helpRequests && helpRequestsData.helpRequests.length > 0 && (
+        <Card className="bg-gray-850 border-border">
+          <CardHeader>
+            <CardTitle>Your Help Requests</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {helpRequestsData.helpRequests.map((request: any) => (
+                <div key={request.id} className="bg-gray-800 p-4 rounded-lg">
+                  <div className="flex items-start justify-between mb-2">
+                    <h4 className="font-medium">{request.issueType}</h4>
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      request.status === 'resolved' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {request.status}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    {request.description}
+                  </p>
+                  {request.adminResponse && (
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border-l-4 border-blue-500">
+                      <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+                        Admin Response:
+                      </p>
+                      <p className="text-sm text-blue-800 dark:text-blue-200">
+                        {request.adminResponse}
+                      </p>
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {new Date(request.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Contact Info */}
       <Card className="bg-gray-850 border-border">

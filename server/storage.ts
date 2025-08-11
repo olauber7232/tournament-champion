@@ -37,6 +37,7 @@ export interface IStorage {
   // Help operations
   createHelpRequest(helpRequest: InsertHelpRequest): Promise<HelpRequest>;
   getAllHelpRequests(): Promise<HelpRequest[]>;
+  getUserHelpRequests(userId: number): Promise<HelpRequest[]>;
   updateHelpRequest(id: number, status: string, adminResponse?: string): Promise<void>;
   
   // Admin operations
@@ -46,6 +47,7 @@ export interface IStorage {
   
   // Referral operations
   updateReferralStats(userId: number, amount: string): Promise<void>;
+  getUserReferrals(userId: number): Promise<User[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -80,8 +82,8 @@ export class MemStorage implements IStorage {
     // Initialize default admin user
     const adminUser: User = {
       id: this.currentUserId++,
-      username: 'admin',
-      password: 'admin123',
+      username: 'govind',
+      password: 'govind@1234',
       recoveryQuestion: 'What is your favorite game?',
       recoveryAnswer: 'Free Fire',
       referralCode: this.generateReferralCode(),
@@ -155,7 +157,11 @@ export class MemStorage implements IStorage {
   }
 
   private generateReferralCode(): string {
-    return 'KIRDA' + Math.random().toString(36).substring(2, 8).toUpperCase();
+    let code;
+    do {
+      code = 'KIRDA' + Math.random().toString(36).substring(2, 8).toUpperCase();
+    } while (Array.from(this.users.values()).some(user => user.referralCode === code));
+    return code;
   }
 
   async getUser(id: number): Promise<User | undefined> {
@@ -353,6 +359,12 @@ export class MemStorage implements IStorage {
       .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime());
   }
 
+  async getUserHelpRequests(userId: number): Promise<HelpRequest[]> {
+    return Array.from(this.helpRequests.values())
+      .filter(req => req.userId === userId)
+      .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime());
+  }
+
   async updateHelpRequest(id: number, status: string, adminResponse?: string): Promise<void> {
     const helpRequest = this.helpRequests.get(id);
     if (helpRequest) {
@@ -396,6 +408,19 @@ export class MemStorage implements IStorage {
       user.totalReferrals++;
       this.users.set(userId, user);
     }
+  }
+
+  async getUserReferrals(userId: number): Promise<User[]> {
+    const user = this.users.get(userId);
+    if (!user) return [];
+    
+    return Array.from(this.users.values())
+      .filter(u => u.referredBy === user.referralCode)
+      .map(u => ({
+        ...u,
+        password: '', // Don't return passwords
+      }))
+      .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime());
   }
 }
 
