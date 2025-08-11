@@ -32,6 +32,24 @@ export default function Admin() {
   const queryClient = useQueryClient();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginData, setLoginData] = useState({ username: '', password: '' });
+  
+  const [newTournament, setNewTournament] = useState({
+    gameId: '',
+    name: '',
+    description: '',
+    entryFee: '',
+    prizePool: '',
+    maxPlayers: '',
+    startTime: '',
+    rules: '',
+    mapName: '',
+    imageUrl: '',
+  });
+  
+  const [broadcastMessage, setBroadcastMessage] = useState({
+    title: '',
+    message: '',
+  });
 
   // Admin authentication check
   const handleAdminLogin = async (e: React.FormEvent) => {
@@ -84,24 +102,6 @@ export default function Admin() {
       </div>
     );
   }
-  
-  const [newTournament, setNewTournament] = useState({
-    gameId: '',
-    name: '',
-    description: '',
-    entryFee: '',
-    prizePool: '',
-    maxPlayers: '',
-    startTime: '',
-    rules: '',
-    mapName: '',
-    imageUrl: '',
-  });
-  
-  const [broadcastMessage, setBroadcastMessage] = useState({
-    title: '',
-    message: '',
-  });
 
   // Queries
   const { data: usersData } = useQuery<{ users: User[] }>({

@@ -102,6 +102,7 @@ function AppContent() {
           <Tournaments gameId={selectedGameId} onBack={handleBack} />
         )}
         {currentPage === 'help' && <Help onBack={handleBack} />}
+        {currentPage === 'settings' && <Settings onBack={() => setCurrentPage('profile')} />}
         {currentPage === 'admin' && <Admin />}
       </main>
 
